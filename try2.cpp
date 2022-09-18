@@ -4,61 +4,23 @@
 
 using namespace std;
 
-vector <int> prost(int n){
-    
-    vector<int> v;
+int phi (int n) {
 
-    for (int del = 1; del <= n; del++){
-        if (n % del == 0){
-            
-            bool flag = true;
-            
-            for(int k = 2 ; k <= del/2; k++){
-                
-                if(del%k == 0){
-                    flag=false;
-                    break;
-                }
-            }
+	int res = n;
 
-            if (flag) v.push_back(del);
-        }
-    }
-    
-    for (int i = 0; i < v.size(); i++) printf("\n %d --> простой делитель", v[i]);
-    printf("\n");
+	for (int i = 2; i * i <= n; ++i)
+		if (n % i == 0) {
+			
+            while (n % i == 0)
+                n /= i;
 
-    return(v);
+			res -= res / i;
+		}
 
-}
-
-void eiler(vector<int> v, int n){
-
-    if (v[v.size()-1] == n){
+	if (n > 1)
+		res -= res / n;
         
-        printf("\nЧисло %d простое - функция эйлера равна n-1\n");
-        printf("\nПорядок группы равен: %d \n", n-1);
-    }
-    else {
-        
-        printf("\nЧисло %d не простое - функция эйлера считается по формуле:\n");
-        printf("f(n) = n * (1 - 1/p1) * ... * (1 - 1/ps), где p1...ps - простые делители n\n");
-        
-        printf("\nИтого:\n f(%d) = %d ", n , n);
-        float res = float(n), k;
-        for (int i = 1; i < v.size(); i++) {
-
-            printf("* (1 - 1 / %d) ", v[i]);
-            
-            k = 1 - 1 / float(v[i]);
-            res *= k;
-
-        }
-        printf("\n");
-
-        printf("\nПорядок группы равен: %d \n\n\n\n",
-            int(res)%1 >= 5 ? int(res) + 1 : int(res));
-    }
+	return res;
 }
 
 int main(){
@@ -70,11 +32,7 @@ int main(){
     int n;
     scanf("%d", &n);
 
-    printf("\nНайдем все простые делители числа n:\n");
-
-    vector<int> del = prost(n);
-
-    eiler(del, n);
+    printf("Порядок группы: %d\n", phi(n));
 
     return 0;
 }
