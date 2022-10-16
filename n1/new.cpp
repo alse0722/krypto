@@ -1,7 +1,19 @@
 ﻿#include <iostream>
 #include <vector>
+#include<limits>
 
 using namespace std;
+
+int validated_input(){
+    int s = 0;
+    while(!(cin >> s)){
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        printf("! Неверный ввод. Повторите ввод, начиная с первого неверного элемента.\n");
+    }
+
+    return s;
+}
 
 int invert(int x, int z) {
 
@@ -136,7 +148,7 @@ bool group1(vector <int> v, int n){
 
     if (cnt == v.size()) reverse_mul_n = true;
 
-    printf("\nСвойства полученного обратного множества:\n");
+    printf("\n\nСвойства множества:\n");
 
     printf("Ассоциативность * -->");
     printf(ass_mul ? "true\n" : "false\n");
@@ -156,42 +168,44 @@ bool group1(vector <int> v, int n){
         && reverse_mul_n;
 }
 
-void sv1(vector<int> v) {
-    printf("\nПроверим ассоциативность в группе:\n");
+// void sv1(vector<int> v) {
+//     printf("\nПроверим ассоциативность в группе:\n");
 
-    for (int i = 0; i < v.size() - 3; i++) {
-        float a(v[i]), b(v[i + 1]), c(v[i + 2]);
-        printf("test%d: (%5f * %5f) * %5f == (%5f * %5f) * %5f ? --> ", i, a, b, c, a, b, c);
-        printf((a * b) * c == a * (b * c) ? "true\n" : "false\n");
-    }
+//     for (int i = 0; i < v.size() - 3; i++) {
+//         float a(v[i]), b(v[i + 1]), c(v[i + 2]);
+//         printf("test%d: (%5f * %5f) * %5f == (%5f * %5f) * %5f ? --> ", i, a, b, c, a, b, c);
+//         printf((a * b) * c == a * (b * c) ? "true\n" : "false\n");
+//     }
 
-}
+// }
 
-void sv2(vector<int> v) {
-    printf("\nПроверим наличие нейтрального элемента в группе:\n");
+// void sv2(vector<int> v) {
+//     printf("\nПроверим наличие нейтрального элемента в группе:\n");
 
-    for (int i = 0; i < v.size(); i++) {
-        float a(v[i]);
-        printf("test%d: 1 * %5f == %5f * 1 == %5f ? --> ", i, a, a, a);
-        printf(a * 1 == 1 * a && a * 1 == a ? "true\n" : "false\n");
-    }
+//     for (int i = 0; i < v.size(); i++) {
+//         float a(v[i]);
+//         printf("test%d: 1 * %5f == %5f * 1 == %5f ? --> ", i, a, a, a);
+//         printf(a * 1 == 1 * a && a * 1 == a ? "true\n" : "false\n");
+//     }
 
-}
+// }
 
-void sv3(vector<int> v1, vector<int>v2) {
-    printf("\nПроверим наличие обратного элемента в группе:\n");
+// void sv3(vector<int> v1, vector<int>v2) {
+//     printf("\nПроверим наличие обратного элемента в группе:\n");
 
-    for (int i = 0; i < v1.size(); i++) {
-        float a(v1[i]), b(v2[i]);
-        printf("test%d: %5f * %5f == %5f * %5f == 1 ? --> ", i, a, b, b, a);
-        printf(a * b == b * a && a * b == 1 ? "true\n" : "false\n");
-    }
+//     for (int i = 0; i < v1.size(); i++) {
+//         float a(v1[i]), b(v2[i]);
+//         printf("test%d: %5f * %5f == %5f * %5f == 1 ? --> ", i, a, b, b, a);
+//         printf(a * b == b * a && a * b == 1 ? "true\n" : "false\n");
+//     }
 
-}
+// }
 
 int main() {
     
     setlocale(0, "");
+
+    printf("\n\n---------------------Часть 1---------------------\n\n");
 
     int n, z(0);
     vector<int> vect, vect_mul;
@@ -200,16 +214,16 @@ int main() {
 
     printf("Введите количество элементов кольца\n");
 
-    cin >> n;
+    n = validated_input();
 
     printf("Введите модуль кольца\n");
-    cin >> z;
+    z  = validated_input();
 
     printf("Введите элементы кольца \n");
 
     int k;
     for (int i = 0; i < n; i++) {
-        cin >> k;
+        k = validated_input();
         vect.push_back(k);
     }
 
@@ -236,5 +250,31 @@ int main() {
     else 
         printf("\nУ данного множества не может быть мультипликативной группы!\n");
 
+
+    printf("\n\n---------------------Часть 2---------------------\n\n");
+
+    printf("Введите модуль Z*n\n");
+
+    n = validated_input();
+
+    vector<int>Zn, Zn_rev;
+    
+    printf("\n\nЭлементы Zn:\n  ");
+
+    for (int i = 0; i < n; i++){
+        printf("[%d] ", i);
+        Zn.push_back(i);
+    }
+    
+    for (int i = 0; i < Zn.size(); i++) Zn_rev.push_back(Zn[i] == 0 ? 0 : invert(Zn[i], n));
+
+    printf("\n\nЭлементы Z*n:");
+
+    for (int i = 0; i < Zn.size(); i++)
+        Zn[i] == 0 ? 
+            printf("\n  Для [%d] нет обратного\n    ", Zn[i]):
+            printf("[%d] ", Zn[i]);
+    
+    printf("\n\nКоличество элементов Z*n равно %d\n", n-1);
     return 0;
 }

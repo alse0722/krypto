@@ -7,6 +7,42 @@ using namespace std;
 
 int SPH(int, int, int);
 
+int modexp(int x, int y, int N)
+{
+  if (y == 0) return 1;
+
+  int z = modexp(x, y / 2, N);
+
+  if (y % 2 == 0)
+    return (z*z) % N;
+  else
+    return (x*z*z) % N;
+}
+
+bool is_generator(int g, int mod)
+{
+
+    bool test(true);
+    vector<bool> field(mod, false);
+    int now;
+
+    for (int i = 0; i < mod; i++)
+    {
+        now = modexp(g, i, mod);
+
+        i % 4 == 0 ?
+            printf("\n  %3d ^ %3d = %3d (mod %3d)", g, i, now, mod):
+            printf("  %3d ^ %3d = %3d (mod %3d)", g, i, now, mod);
+        
+        field[now] = true;
+    }
+
+    for (int i = 1; i < mod; i++)
+        test *= field[i];
+    
+    return test;
+}
+
 int Power(int g, int mod, int step)
 {
 
@@ -55,12 +91,13 @@ int xModP(int n, int b, int y, int p, int h)
         buf = Power(b, n, (n - 1) / p * ix);
         r[buf] = ix;
         printf("\n	r{%d,%d} = %d", p, ix, buf);
-        //printf("    --->    Т.О a^(%d * (%d-1) / %d)", ix, n, p);
+        // printf("    --->    Т.О a^(%d * (%d-1) / %d)", ix, n, p);
     }
 
     printf("\n\nТак как x_%d находится под модулем %d^%d, его можно найти по формуле:\n    x_%d = 0", p, p, h, p);
     int pw;
-    for (int i = 0; i < h; i++){
+    for (int i = 0; i < h; i++)
+    {
         pw = pow(p, i);
         printf(" + C%d*%d", i, pw);
     }
@@ -73,9 +110,9 @@ int xModP(int n, int b, int y, int p, int h)
         buf = Power(y, n, (n - 1) / pow(p, ix + 1));
 
         x += pow(p, ix) * r[buf];
-        
+
         printf("\n  %d^(%d-1)/(%d^%d) = %d  --> C%d = %d", y, p, p, ix, buf, ix, r[buf]);
-        
+
         buf = -r[buf];
 
         while (buf < 0)
@@ -203,11 +240,17 @@ int main()
     printf("\nВведите элемент для поиска логарифма: ");
     cin >> g;
 
+    if (is_generator(b, p)) {
+    
+    printf("\n\nГенератор верен");
+
     printf("\n---> [Начало работы алгоритма] <---\n");
 
     printf("\n\nОтвет: %d", SPH(p, b, g));
 
     printf("\n---> [Конец работы алгоритма] <---\n");
+    }
+    else printf("\n\n! Неверный генератор\n\n");
 
     return 0;
 }
