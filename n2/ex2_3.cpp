@@ -4,8 +4,20 @@ using namespace std;
 #include <vector>
 #include <cmath>
 #include <string>
+#include <limits>
 
 int SPH(int, int, int);
+
+int validated_input(){
+    int s = 0;
+    while(!(cin >> s)){
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        printf("! Неверный ввод. Повторите ввод, начиная с первого неверного элемента.\n");
+    }
+
+    return s;
+}
 
 int modexp(int x, int y, int N)
 {
@@ -232,17 +244,17 @@ int main()
 
     printf("\n---> [Ввод данных для работы] <---\n");
     printf("\nВведите размерность конечного поля: ");
-    cin >> p;
+    p = validated_input();
 
     printf("\nВведите порождающий элемент: ");
-    cin >> b;
+    b = validated_input();
 
     printf("\nВведите элемент для поиска логарифма: ");
-    cin >> g;
+    g = validated_input();
 
     if (is_generator(b, p)) {
     
-    printf("\n\nГенератор верен");
+    printf("\n\nГенератор верен\n\n");
 
     printf("\n---> [Начало работы алгоритма] <---\n");
 
