@@ -29,7 +29,7 @@ int modexp(int x, int y, int N)
     if (y % 2 == 0)
         return (z * z) % N;
     else
-        return (x * z * z) % N;
+        return (x * z * z) % N; 
 }
 
 bool isPrime(int a)
