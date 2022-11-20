@@ -53,6 +53,23 @@ int get_max_power(Vint v)
     return len_v - k - 1;
 }
 
+Vint get_binary()
+{
+    string s;
+    Vint res;
+
+    printf("\nВведите многочлен в двоичном виде:\n    ");
+    cin >> s;
+
+    for (auto e : s)
+    {
+        int ix = e - '0';
+        ix == 1 ? res.push_back(1) : res.push_back(0);
+    }
+
+    return res;
+}
+
 Vint make_v_reverse(Vint v)
 {
 
@@ -201,9 +218,12 @@ int main()
     Vint a, b, fx, temp;
     pair<Vint, Vint> result;
 
-    a = {0, 1, 1, 0, 1, 1, 1, 0};
-    b = {1, 0, 0, 1, 1, 0, 1, 1};
+    // a = {0, 1, 1, 0, 1, 1, 1, 0};
+    // b = {1, 0, 0, 1, 1, 0, 1, 1};
     fx = {1, 0, 0, 0, 1, 1, 0, 1, 1};
+
+    a = get_binary();
+    b = get_binary();
 
     len_max = a.size() + b.size();
 
@@ -214,6 +234,10 @@ int main()
     printf("\n\nМногочлен b:");
     show_binary(b);
     show_poly(b);
+
+    printf("\n\nМногочлен fx:");
+    show_binary(fx);
+    show_poly(fx);
 
     a = make_v_standarted(a, len_max);
     b = make_v_standarted(b, len_max);
