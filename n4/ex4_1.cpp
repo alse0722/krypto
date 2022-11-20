@@ -133,7 +133,7 @@ bool test_b2_v(lli p, lli e, lli a)
 }
 
 bool test_b2_vi(lli p, lli e, lli a)
-{   
+{
     bool test1(a % p != 0), test2(true);
 
     vector<pair<lli, lli>> p1 = factorize_module(p - 1);
@@ -141,7 +141,7 @@ bool test_b2_vi(lli p, lli e, lli a)
     for (auto q : p1)
         if (simp(q.first) && modexp(a, (p - 1) / q.first, p) == 1)
             test2 = false;
-    
+
     return (p % 2 != 0) && (e > 1) && test1 && test2 && (modexp(a, p - 1, p * p) != 1);
 }
 
@@ -216,6 +216,20 @@ bool test_b2(lli multiplier, vector<pair<lli, lli>> pe)
     return res;
 }
 
+void print_all(lli a, lli x0, lli m, lli T) {
+    lli first(x0), next((x0 * a) % m), cnt(0);
+
+    printf("\n[checker] Выведем последовательность:\n");
+    printf("{%3lli} %lli\n", cnt, first);
+    cnt++;
+
+    while (next != first && cnt < T) {
+        printf("{%3lli} %lli\n", cnt, next);
+        cnt++;
+        next = (next * a) % m;
+    }
+}
+
 int main()
 {
     setlocale(0, "");
@@ -242,28 +256,29 @@ int main()
     printf("\nЧисло m = %lli имеет факторизацию:\n  ", m);
 
     for (auto e : pe)
-       printf("[%lli ^ %lli] * ", e.first, e.second);
+        printf("[%lli ^ %lli] * ", e.first, e.second);
 
     printf("1\n");
-    
-    if (nod (x_start, m) != 1){
+
+    if (nod(x_start, m) != 1) {
         printf("\n[result] Условия достижения максимального периода не выполняются!");
     }
-    else{
-        if (nod(a, m) != 1){
+    else {
+        if (nod(a, m) != 1) {
             printf("\nМножитель a кратен модулю m:/n    [result] Максимальный период равен 1\n");
         }
         else
-            if (test_b1(x_start, pe) && test_b2(a, pe)){
+            if (test_b1(x_start, pe) && test_b2(a, pe)) {
                 printf("\n[info] Оба условия Теоремы B выполняется, можно рассчитать lambda:\n  ");
                 printf("lambda(m = %lli) = %lli\n", m, lambda(pe));
                 printf("\n[result] Максимальный период равен %lli\n", lambda(pe));
             }
-            else{
+            else {
                 printf("\n[result] Условия достижения максимального периода не выполняются!");
             }
     }
 
+    print_all(a, x_start, m, lambda(pe));
     printf("\nКонец работы\n\n\n");
 
     //functions tests
