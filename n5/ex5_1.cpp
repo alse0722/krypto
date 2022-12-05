@@ -5,8 +5,10 @@
 #include <iostream>
 #include <ctime>
 #include <limits>
+#include <windows.h>
 
 using namespace std;
+HANDLE color;
 
 struct session
 {
@@ -121,9 +123,11 @@ host_pair start_session(host initiator, host affector)
     initiator.open_sessions.push_back(new_session_init);
     affector.open_sessions.push_back(new_session_affect);
 
-    printf("\n[info] Session [%s] <---> [%s] is UP!\n",
-           new_session_init.dest_ip.c_str(),
-           new_session_affect.dest_ip.c_str());
+    SetConsoleTextAttribute(color, 2);
+    printf("\n[sys] Session [%s] <---> [%s] is UP!\n",
+        new_session_init.dest_ip.c_str(),
+        new_session_affect.dest_ip.c_str());
+    SetConsoleTextAttribute(color, 7);
 
     return make_pair(initiator, affector);
 }
@@ -159,9 +163,11 @@ host_pair drop_session(host initiator, host affector)
 
     affector.open_sessions = temp;
 
-    printf("\n[info] Session [%s] <---> [%s] is DOWN!\n",
-           initiator.ip.c_str(),
-           affector.ip.c_str());
+    SetConsoleTextAttribute(color, 4);
+    printf("\n[sys] Session [%s] <---> [%s] is DOWN!\n",
+        initiator.ip.c_str(),
+        affector.ip.c_str());
+    SetConsoleTextAttribute(color, 7);
 
     return make_pair(initiator, affector);
 }
@@ -314,8 +320,8 @@ void print_host(host host)
     if (!host.open_sessions.empty())
         for (auto connection : host.open_sessions)
             printf(connection.enabled ? "|    [UP]   %s : %d\n" : "|    [DOWN] %s : %d\n",
-                   connection.dest_ip.c_str(),
-                   connection.dest_encrypt_algo);
+                connection.dest_ip.c_str(),
+                connection.dest_encrypt_algo);
     else
         printf("|    ! No connections detected\n");
 
@@ -323,20 +329,20 @@ void print_host(host host)
     if (!host.sent_messages.empty())
         for (auto msg : host.sent_messages)
             printf("|    Sent {%s} to [%s:%d] --> %s\n",
-                   msg.message.c_str(),
-                   msg.destination_ip.c_str(),
-                   msg.encrypted_with,
-                   msg.status.c_str());
+                msg.message.c_str(),
+                msg.destination_ip.c_str(),
+                msg.encrypted_with,
+                msg.status.c_str());
     else
         printf("|    ! Sent 0 messages\n");
 
     if (!host.received_messages.empty())
         for (auto msg : host.received_messages)
             printf("|    Received {%s} from [%s:%d] --> %s\n",
-                   msg.message.c_str(),
-                   msg.source_ip.c_str(),
-                   msg.encrypted_with,
-                   msg.status.c_str());
+                msg.message.c_str(),
+                msg.source_ip.c_str(),
+                msg.encrypted_with,
+                msg.status.c_str());
     else
         printf("|    ! Received 0 messages\n");
 
@@ -355,10 +361,10 @@ void print_hacker(hacker hacker)
     if (!hacker.obtained_data.empty())
         for (auto msg : hacker.obtained_data)
             printf("|    Received {%s} from [%s:%d] --> %s\n",
-                   msg.message.c_str(),
-                   msg.source_ip.c_str(),
-                   msg.encrypted_with,
-                   msg.status.c_str());
+                msg.message.c_str(),
+                msg.source_ip.c_str(),
+                msg.encrypted_with,
+                msg.status.c_str());
     else
         printf("|    ! Received 0 messages\n");
 
@@ -375,17 +381,17 @@ void normal_mode()
     host a, b;
     host_pair temp;
 
-    // system("color 20");
+    SetConsoleTextAttribute(color, 3);
     printf("\n[sys] Mode: Normal\n");
     printf("\n[sys] Initialize hosts");
-    // system("color 70");
+    SetConsoleTextAttribute(color, 7);
 
     a = get_host();
     b = get_host();
 
-    // system("color 20");
+    SetConsoleTextAttribute(color, 3);
     printf("\n[sys] Start session between hosts %s and %s\n", a.name.c_str(), b.name.c_str());
-    // system("color 70");
+    SetConsoleTextAttribute(color, 7);
 
     temp = start_session(a, b);
     a = temp.first;
@@ -394,9 +400,9 @@ void normal_mode()
     print_host(a);
     print_host(b);
 
-    // system("color 20");
+    SetConsoleTextAttribute(color, 3);
     printf("\n[sys] Message excanges between hosts %s and %s\n", a.name.c_str(), b.name.c_str());
-    // system("color 70");
+    SetConsoleTextAttribute(color, 7);
 
     temp = send_message(a, b);
     a = temp.first;
@@ -409,9 +415,9 @@ void normal_mode()
     print_host(a);
     print_host(b);
 
-    // system("color 20");
+    SetConsoleTextAttribute(color, 3);
     printf("\n[sys] Close session between hosts %s and %s\n", a.name.c_str(), b.name.c_str());
-    // system("color 70");
+    SetConsoleTextAttribute(color, 7);
 
     temp = drop_session(a, b);
     a = temp.first;
@@ -420,9 +426,11 @@ void normal_mode()
     print_host(a);
     print_host(b);
 
-    // system("color 20");
+    SetConsoleTextAttribute(color, 3);
     printf("\n[sys] END\n");
-    // system("color 70");
+    SetConsoleTextAttribute(color, 7);
+
+    cin.get();
 }
 
 void hacked_session_mode()
@@ -432,17 +440,17 @@ void hacked_session_mode()
     host_pair temp;
     pair<hacker, host> reply;
 
-    // system("color 20");
+    SetConsoleTextAttribute(color, 3);
     printf("\n[sys] Mode: Hacked session\n");
     printf("\n[sys] Initialize hosts");
-    // system("color 70");
+    SetConsoleTextAttribute(color, 7);
 
     a = get_host();
     b = get_host();
 
-    // system("color 20");
+    SetConsoleTextAttribute(color, 3);
     printf("\n[sys] Start session between hosts %s and %s\n", a.name.c_str(), b.name.c_str());
-    // system("color 70");
+    SetConsoleTextAttribute(color, 7);
 
     temp = start_session(a, b);
     a = temp.first;
@@ -451,16 +459,16 @@ void hacked_session_mode()
     // print_host(a);
     // print_host(b);
 
-    // system("color 20");
+    SetConsoleTextAttribute(color, 3);
     printf("\n[sys] Initialize hacker");
-    // system("color 70");
+    SetConsoleTextAttribute(color, 7);
 
     h = get_hacker(a, b);
     print_hacker(h);
 
-    // system("color 20");
+    SetConsoleTextAttribute(color, 3);
     printf("\n[sys] Hacker interrupts the session");
-    // system("color 70");
+    SetConsoleTextAttribute(color, 7);
 
     temp = interrupt_session(h.fake_host_b, a, h);
     h.fake_host_b = temp.first;
@@ -474,9 +482,9 @@ void hacked_session_mode()
     print_host(b);
     print_hacker(h);
 
-    // system("color 20");
+    SetConsoleTextAttribute(color, 3);
     printf("\n[sys] Message excanges between hosts %s and %s\n", a.name.c_str(), b.name.c_str());
-    // system("color 70");
+    SetConsoleTextAttribute(color, 7);
 
     temp = send_message(a, h.fake_host_b);
     a = temp.first;
@@ -500,9 +508,9 @@ void hacked_session_mode()
     // print_host(b);
     // print_hacker(h);
 
-    // system("color 20");
+    SetConsoleTextAttribute(color, 3);
     printf("\n[sys] Close all sessions \n");
-    // system("color 70");
+    SetConsoleTextAttribute(color, 7);
 
     temp = drop_session(h.fake_host_a, b);
     h.fake_host_a = temp.first;
@@ -515,14 +523,17 @@ void hacked_session_mode()
     print_host(a);
     print_host(b);
     print_hacker(h);
+
+    cin.get();
 }
 
 int main()
 {
     setlocale(0, "");
     srand(time(NULL));
+    color = GetStdHandle(STD_OUTPUT_HANDLE);
 
-    // normal_mode();
+    normal_mode();
     hacked_session_mode();
 
     return 0;
