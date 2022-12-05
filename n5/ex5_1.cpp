@@ -275,6 +275,48 @@ host_pair reply_last_message(host source, host fake_source, host destination)
     return make_pair(fake_source, destination);
 }
 
+host_pair send_copy_message(host source, host destination, host hacker) {
+    packet copy;
+
+    copy = source.sent_messages.back();
+    copy.source_ip = hacker.ip;
+    copy.status = "COPIED";
+    //copy.message = "*******";
+
+    if (check_session(hacker, destination)) {
+        copy.status = "SENT COPY";
+        hacker.sent_messages.push_back(copy);
+        copy.status = "RECEIVED";
+        destination.received_messages.push_back(copy);
+    }
+    else {
+        copy.status = "COPY SENDING FAILURE";
+        hacker.sent_messages.push_back(copy);
+    }
+
+    return make_pair(hacker, destination);
+};
+
+host_pair reply(host source, host destination) {
+    packet pkg(format_message(source, destination));
+
+    pkg.message = source.received_messages.back().message;
+
+    if (check_session(source, destination))
+    {
+        pkg.status = "SENT";
+        source.sent_messages.push_back(pkg);
+        pkg.status = "RECEIVED";
+        destination.received_messages.push_back(pkg);
+    }
+    else
+    {
+        pkg.status = "SENDING FAILURE";
+        source.sent_messages.push_back(pkg);
+    }
+    return make_pair(source, destination);
+}
+
 host decrypt_messages(host host)
 {
     vector<packet> processed;
@@ -298,6 +340,7 @@ host decrypt_messages(host host)
 
 hacker collect_data(hacker hacker)
 {
+
     for (auto e : hacker.fake_host_a.received_messages)
         hacker.obtained_data.push_back(e);
 
@@ -527,14 +570,60 @@ void hacked_session_mode()
     cin.get();
 }
 
+void third_mode() {
+    host a, b, c;
+    host_pair temp;
+
+    a = get_host();
+    b = get_host();
+    c = get_host();
+
+    temp = start_session(a, b);
+    a = temp.first;
+    b = temp.second;
+
+    temp = start_session(c, b);
+    c = temp.first;
+    b = temp.second;
+
+    print_host(a);
+    print_host(b);
+    print_host(c);
+
+    temp = send_message(a, b);
+    a = temp.first;
+    b = decrypt_messages(temp.second);
+
+    temp = reply(b, a);
+    b = temp.first;
+    a = decrypt_messages(temp.second);
+
+    temp = send_copy_message(a, b, c);
+    c = temp.first;
+    b = temp.second;
+
+    temp = reply(b, c);
+    b = temp.first;
+    c = decrypt_messages(temp.second);
+
+    //temp = send_copy_message(b, a, c);
+    //c = temp.first;
+    //a = temp.second;
+
+    print_host(a);
+    print_host(b);
+    print_host(c);
+}
+
 int main()
 {
     setlocale(0, "");
     srand(time(NULL));
     color = GetStdHandle(STD_OUTPUT_HANDLE);
 
-    normal_mode();
+    //normal_mode();
     hacked_session_mode();
+    //third_mode();
 
     return 0;
 }
