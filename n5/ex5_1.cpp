@@ -5,10 +5,10 @@
 #include <iostream>
 #include <ctime>
 #include <limits>
-#include <windows.h>
+//#include <windows.h>
 
 using namespace std;
-HANDLE color;
+//HANDLE color;
 
 struct session
 {
@@ -123,11 +123,11 @@ host_pair start_session(host initiator, host affector)
     initiator.open_sessions.push_back(new_session_init);
     affector.open_sessions.push_back(new_session_affect);
 
-    SetConsoleTextAttribute(color, 2);
+    //SetConsoleTextAttribute(color, 2);
     printf("\n[sys] Session [%s] <---> [%s] is UP!\n",
         new_session_init.dest_ip.c_str(),
         new_session_affect.dest_ip.c_str());
-    SetConsoleTextAttribute(color, 7);
+    //SetConsoleTextAttribute(color, 7);
 
     return make_pair(initiator, affector);
 }
@@ -163,11 +163,11 @@ host_pair drop_session(host initiator, host affector)
 
     affector.open_sessions = temp;
 
-    SetConsoleTextAttribute(color, 4);
+    //SetConsoleTextAttribute(color, 4);
     printf("\n[sys] Session [%s] <---> [%s] is DOWN!\n",
         initiator.ip.c_str(),
         affector.ip.c_str());
-    SetConsoleTextAttribute(color, 7);
+    //SetConsoleTextAttribute(color, 7);
 
     return make_pair(initiator, affector);
 }
@@ -424,17 +424,17 @@ void normal_mode()
     host a, b;
     host_pair temp;
 
-    SetConsoleTextAttribute(color, 3);
+    //SetConsoleTextAttribute(color, 3);
     printf("\n[sys] Mode: Normal\n");
     printf("\n[sys] Initialize hosts");
-    SetConsoleTextAttribute(color, 7);
+    //SetConsoleTextAttribute(color, 7);
 
     a = get_host();
     b = get_host();
 
-    SetConsoleTextAttribute(color, 3);
+    //SetConsoleTextAttribute(color, 3);
     printf("\n[sys] Start session between hosts %s and %s\n", a.name.c_str(), b.name.c_str());
-    SetConsoleTextAttribute(color, 7);
+    //SetConsoleTextAttribute(color, 7);
 
     temp = start_session(a, b);
     a = temp.first;
@@ -443,9 +443,9 @@ void normal_mode()
     print_host(a);
     print_host(b);
 
-    SetConsoleTextAttribute(color, 3);
+    //SetConsoleTextAttribute(color, 3);
     printf("\n[sys] Message excanges between hosts %s and %s\n", a.name.c_str(), b.name.c_str());
-    SetConsoleTextAttribute(color, 7);
+    //SetConsoleTextAttribute(color, 7);
 
     temp = send_message(a, b);
     a = temp.first;
@@ -458,9 +458,9 @@ void normal_mode()
     print_host(a);
     print_host(b);
 
-    SetConsoleTextAttribute(color, 3);
+    //SetConsoleTextAttribute(color, 3);
     printf("\n[sys] Close session between hosts %s and %s\n", a.name.c_str(), b.name.c_str());
-    SetConsoleTextAttribute(color, 7);
+    //SetConsoleTextAttribute(color, 7);
 
     temp = drop_session(a, b);
     a = temp.first;
@@ -469,9 +469,9 @@ void normal_mode()
     print_host(a);
     print_host(b);
 
-    SetConsoleTextAttribute(color, 3);
+    //SetConsoleTextAttribute(color, 3);
     printf("\n[sys] END\n");
-    SetConsoleTextAttribute(color, 7);
+    //SetConsoleTextAttribute(color, 7);
 
     cin.get();
 }
@@ -483,17 +483,17 @@ void hacked_session_mode()
     host_pair temp;
     pair<hacker, host> reply;
 
-    SetConsoleTextAttribute(color, 3);
+    //SetConsoleTextAttribute(color, 3);
     printf("\n[sys] Mode: Hacked session\n");
     printf("\n[sys] Initialize hosts");
-    SetConsoleTextAttribute(color, 7);
+    //SetConsoleTextAttribute(color, 7);
 
     a = get_host();
     b = get_host();
 
-    SetConsoleTextAttribute(color, 3);
+    //SetConsoleTextAttribute(color, 3);
     printf("\n[sys] Start session between hosts %s and %s\n", a.name.c_str(), b.name.c_str());
-    SetConsoleTextAttribute(color, 7);
+    //SetConsoleTextAttribute(color, 7);
 
     temp = start_session(a, b);
     a = temp.first;
@@ -502,16 +502,16 @@ void hacked_session_mode()
     // print_host(a);
     // print_host(b);
 
-    SetConsoleTextAttribute(color, 3);
+    //SetConsoleTextAttribute(color, 3);
     printf("\n[sys] Initialize hacker");
-    SetConsoleTextAttribute(color, 7);
+    //SetConsoleTextAttribute(color, 7);
 
     h = get_hacker(a, b);
     print_hacker(h);
 
-    SetConsoleTextAttribute(color, 3);
+    //SetConsoleTextAttribute(color, 3);
     printf("\n[sys] Hacker interrupts the session");
-    SetConsoleTextAttribute(color, 7);
+    //SetConsoleTextAttribute(color, 7);
 
     temp = interrupt_session(h.fake_host_b, a, h);
     h.fake_host_b = temp.first;
@@ -525,9 +525,9 @@ void hacked_session_mode()
     print_host(b);
     print_hacker(h);
 
-    SetConsoleTextAttribute(color, 3);
+    //SetConsoleTextAttribute(color, 3);
     printf("\n[sys] Message excanges between hosts %s and %s\n", a.name.c_str(), b.name.c_str());
-    SetConsoleTextAttribute(color, 7);
+    //SetConsoleTextAttribute(color, 7);
 
     temp = send_message(a, h.fake_host_b);
     a = temp.first;
@@ -551,9 +551,9 @@ void hacked_session_mode()
     // print_host(b);
     // print_hacker(h);
 
-    SetConsoleTextAttribute(color, 3);
+    //SetConsoleTextAttribute(color, 3);
     printf("\n[sys] Close all sessions \n");
-    SetConsoleTextAttribute(color, 7);
+    //SetConsoleTextAttribute(color, 7);
 
     temp = drop_session(h.fake_host_a, b);
     h.fake_host_a = temp.first;
@@ -619,7 +619,7 @@ int main()
 {
     setlocale(0, "");
     srand(time(NULL));
-    color = GetStdHandle(STD_OUTPUT_HANDLE);
+    //color = GetStdHandle(STD_OUTPUT_HANDLE);
 
     //normal_mode();
     hacked_session_mode();
