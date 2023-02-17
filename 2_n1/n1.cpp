@@ -98,7 +98,7 @@ int main(){
 
     //PRINTING RESULT
 
-    if (n < 20){
+    if (100 < 20){
         printf("\nMy result:\n");
 
         printf("    ");
@@ -147,9 +147,9 @@ int main(){
     //chrono managing stop gmp timer
     auto gmp_end = high_resolution_clock::now();
 
-    printf("\nGMP result:\n");
-    mpz_out_str(stdout,b,sum);
-    printf("\n");
+    //printf("\nGMP result:\n");
+    //mpz_out_str(stdout,b,sum);
+    //printf("\n");
     
     printf("\nNUMBERS ARE EQUAL!");
 
