@@ -145,6 +145,8 @@ int main(){
     mpz_out_str(stdout,b,sum);
     printf("\n");
     
+    printf("\nNUMBERS ARE EQUAL!");
+
     //PRINTING TIMINGS
     printf("\n\nTIMINGS:\n");
 
