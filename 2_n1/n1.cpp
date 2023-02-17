@@ -114,11 +114,15 @@ int main(){
         printf("\n ");
         for (int i = 0; i < n+1; i++)
             printf("%2d ", res[i]);
+        printf("\n");
     }
     else{
         printf("\nMine result:\n");
 
-        for (int i = 0; i < n+1; i++)
+        if (res[0]!=0)
+            printf("%d", res[0]);
+
+        for (int i = 1; i < n+1; i++)
             printf("%d", res[i]);
         
         printf("\n");
