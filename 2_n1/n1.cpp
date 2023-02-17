@@ -3,13 +3,18 @@
 #include <string>
 #include <algorithm>
 #include <gmp.h>
-
+#include <chrono>
+#include <ctime>
+#include <iomanip>
 
 using namespace std;
+using namespace std::chrono;
 
-int validated_input() {
+int validated_input()
+{
     int s = 0;
-    while (!(cin >> s)) {
+    while (!(cin >> s))
+    {
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
         printf("! Неверный ввод. Повторите ввод, начиная с первого неверного элемента.\n");
@@ -18,14 +23,16 @@ int validated_input() {
     return s;
 }
 
-bool is_number(const std::string& s)
+bool is_number(const std::string &s)
 {
     std::string::const_iterator it = s.begin();
-    while (it != s.end() && std::isdigit(*it)) ++it;
+    while (it != s.end() && std::isdigit(*it))
+        ++it;
     return !s.empty() && it == s.end();
 }
 
-vector <int> norm(vector <int> v, int n){
+vector<int> norm(vector<int> v, int n)
+{
     reverse(v.begin(), v.end());
     while (v.size() != n)
         v.push_back(0);
@@ -33,17 +40,20 @@ vector <int> norm(vector <int> v, int n){
     return v;
 }
 
-vector <int> get_num(string s){
-    vector <int> v;
+vector<int> get_num(string s)
+{
+    vector<int> v;
     for (int i = 0; i < s.size(); i++)
         v.push_back((int)s[i] - 48);
     return v;
 }
 
+
+// g++ 2_n1/n1.cpp -lgmp -o test
+// ./test
 int main(){
 
-    mpz_t U, V;
-    mpz_t sum;
+    //MINE SECTION
 
     int n, b, k(0);
     string uu("u"), vv("v");
@@ -62,9 +72,6 @@ int main(){
         cin >> vv;
     }
 
-    mpz_init_set_str(U, uu.c_str(), b);
-    mpz_init_set_str(V, vv.c_str(), b);
-
     u = get_num(uu);
     v = get_num(vv);
     n = max(u.size(), v.size());
@@ -74,19 +81,9 @@ int main(){
     vector <int> res(n, 0);
     res = norm(res, n+1);
 
-    //printf("\nn %d", n);
-    //printf("\nU ");
-    //for (int i = 0; i < u.size(); i++)
-    //    printf("%d ", u[i]);
-    //
-    //printf("\nV ");
-    //for (int i = 0; i < v.size(); i++)
-    //   printf("%d ", v[i]);
-
-    //printf("\nR ");
-    //for (int i = 0; i < res.size(); i++)
-    //    printf("%d ", res[i]);
-
+    //chrono managing start mine timer
+    auto mine_start = high_resolution_clock::now();
+    
     for (int i = n-1; i >= 0; i--)
     {
         res[i+1] = (u[i] + v[i] + k) % b;
@@ -94,29 +91,72 @@ int main(){
     }
     res[0] = k;
     
+    //chrono managing stop mine timer
+    auto mine_end = high_resolution_clock::now();
 
-    printf("\nRES:\n");
+    //PRINTING RESULT
 
-    printf("    ");
-    for (int i = 0; i < n; i++)
-        printf("%2d ", u[i]);
+    if (n < 20){
+        printf("\nMine result:\n");
 
-    printf("\n+   ");
-    for (int i = 0; i < n; i++)
-        printf("%2d ", v[i]);
+        printf("    ");
+        for (int i = 0; i < n; i++)
+            printf("%2d ", u[i]);
+
+        printf("\n+   ");
+        for (int i = 0; i < n; i++)
+            printf("%2d ", v[i]);
+        
+        printf("\n");
+        for (int i = 0; i < n + 1; i++)
+            printf("----");
+        
+        printf("\n ");
+        for (int i = 0; i < n+1; i++)
+            printf("%2d ", res[i]);
+    }
+    else{
+        printf("\nMine result:\n");
+
+        for (int i = 0; i < n+1; i++)
+            printf("%d", res[i]);
+        
+        printf("\n");
+    }
     
-    printf("\n");
-    for (int i = 0; i < n + 1; i++)
-        printf("----");
-    
-    printf("\n ");
-    for (int i = 0; i < n+1; i++)
-        printf("%2d ", res[i]);
-    printf("\n\nBIBLIO\n\n");
-    
+
+    //GMP SECTION
+
+    mpz_t U, V;
+    mpz_t sum;
+
+    mpz_init_set_str(U, uu.c_str(), b);
+    mpz_init_set_str(V, vv.c_str(), b);
+
+    //chrono managing start gmp timer
+    auto gmp_start = high_resolution_clock::now();
+
     mpz_add(sum, U, V);
 
-    gmp_printf("SUM: %Zd\n", sum);
+    //chrono managing stop gmp timer
+    auto gmp_end = high_resolution_clock::now();
 
-    return 0; 
+    printf("\nGMP result:\n");
+    mpz_out_str(stdout,b,sum);
+    printf("\n");
+    
+    //PRINTING TIMINGS
+    printf("\n\nTIMINGS:\n");
+
+    auto mine_duration = duration_cast<microseconds>(mine_end - mine_start);
+    auto gmp_duration = duration_cast<microseconds>(gmp_end - gmp_start);
+
+    cout << "\nTime taken by mine function: "
+         << mine_duration.count() << " microseconds" << endl;
+
+    cout << "\nTime taken by GMP function: "
+         << gmp_duration.count() << " microseconds" << endl;
+    
+
+    return 0;
 }
