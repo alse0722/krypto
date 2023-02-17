@@ -55,12 +55,14 @@ int main(){
 
     //MINE SECTION
 
-    int n, b, k(0);
+    int n, b(10), k(0);
     string uu("u"), vv("v");
     vector <int> u, v;
 
-    printf("\nEnter b: ");
-    b = validated_input();
+    //printf("\nEnter b: ");
+    //b = validated_input();
+
+    printf("\nb: 10\n");
 
     while (!is_number(uu)){
         printf("\nEnter U: ");
@@ -97,7 +99,7 @@ int main(){
     //PRINTING RESULT
 
     if (n < 20){
-        printf("\nMine result:\n");
+        printf("\nMy result:\n");
 
         printf("    ");
         for (int i = 0; i < n; i++)
@@ -117,7 +119,7 @@ int main(){
         printf("\n");
     }
     else{
-        printf("\nMine result:\n");
+        printf("\nMy result:\n");
 
         if (res[0]!=0)
             printf("%d", res[0]);
@@ -157,7 +159,7 @@ int main(){
     auto mine_duration = duration_cast<microseconds>(mine_end - mine_start);
     auto gmp_duration = duration_cast<microseconds>(gmp_end - gmp_start);
 
-    cout << "\nTime taken by mine function: "
+    cout << "\nTime taken by my function: "
          << mine_duration.count() << " microseconds" << endl;
 
     cout << "\nTime taken by GMP function: "
