@@ -156,7 +156,7 @@ bignum sum_big_numbers(bignum u, bignum v, int opt)
         
         auto gmp_duration = duration_cast<microseconds>(gmp_end - gmp_start);
 
-        printf("\nResult is: \n");
+        printf("\nResult of + is: \n");
         show_big_number(restore_big_number(res), 3);
 
         cout << "\nTime taken by my function: "
@@ -164,15 +164,35 @@ bignum sum_big_numbers(bignum u, bignum v, int opt)
 
         cout << "\nTime taken by GMP function: "
          << gmp_duration.count() << " microseconds" << endl;
+
+        return restore_big_number(res);
     }
     else{
+        auto mine_start = high_resolution_clock::now();
 
+        for (int i = n - 1; i >= 0; i--)
+        {
+            tmp[i + 1] = (u.vect_num[i] + v.vect_num[i] + k) % b;
+            k = (u.vect_num[i] + v.vect_num[i] + k) / b;
+        }
+        tmp[0] = k;
+
+        res.vect_num = tmp;
+
+        mpz_add(res.mpz_num, u.mpz_num, v.mpz_num);
+
+        return restore_big_number(res);
     }
 }
 
+// g++ all_1.cpp -lgmp -o test
 int main()
 {
     bignum a(form_big_number());
-    show_big_number(a, 3);
+    bignum b(form_big_number());
+
+    bignum sum1(sum_big_numbers(a,b,true));
+    bignum sum1(sum_big_numbers(a,b,false));
+
     return 0;
 }
