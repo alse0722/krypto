@@ -92,14 +92,14 @@ bignum restore_big_number(bignum n)
     return n;
 }
 
-void show_big_number(bignum n, int opt)
+void show_big_number(bignum n, int opt, int md = 0)
 {
     // string out
     if (opt == 1)
     {
         for (auto e : n.str_num)
             printf("%s", e);
-        printf("\t(b: %d)\n", n.b);
+        printf("\t(b: %d)\n", md == 0 ? n.b : md);
     }
 
     // vector out
@@ -109,14 +109,14 @@ void show_big_number(bignum n, int opt)
             printf("%d", n.vect_num[0]);
         for (int i = 1; i < n.vect_num.size(); i++)
             printf("%d", n.vect_num[i]);
-        printf("\t(b: %d)\n", n.b);
+        printf("\t(b: %d)\n", md == 0 ? n.b : md);
     }
 
     // mpz out
     if (opt == 3)
     {
         mpz_out_str(stdout, n.b, n.mpz_num);
-        printf("\t(b: %d)\n", n.b);
+        printf("\t(b: %d)\n", md == 0 ? n.b : md);
     }
 }
 
@@ -550,36 +550,134 @@ pair<bignum, bignum> div_big_numbers(bignum u, bignum v, bool opt)
 
         mpz_tdiv_qr(res_q.mpz_num, res_r.mpz_num, u.mpz_num, v.mpz_num);
 
-        printf("\nResult of / is: \n");
         res_q = restore_big_number(res_q);
-        printf("q:\t");
-        show_big_number(res_q, 3);
         res_r = restore_big_number(res_r);
-        printf("r:\t");
-        show_big_number(res_r, 3);
 
         return make_pair(res_q, res_r);
     }
 }
 
-bignum pow_big_numbers(bignum z, bignum n, bool opt)
-{
+bignum pow_big_numbers(bignum z, bignum n, bignum md, bool opt)
+{   
+    int m(atoi(md.str_num.c_str()));
+    bignum res;
+    bignum y;
+    bignum del;
+    mpz_init(res.mpz_num);
+    // md 0
+    // n 0
+    // 0 0
+    if (atoi(md.str_num.c_str()) == 0)
 
     if (opt)
     {
-        bignum y;
+        auto mine_start = high_resolution_clock::now();
+        if (md.vect_num.back() == 0 && md.vect_num.size() == 1 || 1)
+            goto RES;
+    A1:
         y.b = z.b;
         mpz_init_set_si(y.mpz_num, 1);
-        
-    }else{
+        restore_big_number(n);
+        goto A2;
+    A2:
+        del.vect_num.push_back(2);
+        if (n.vect_num.back() % 2 == 0)
+        {
+            vint div_res = div_big_numbers(n, del, false).first.vect_num;
+            goto A5;
+        }
+        else
+        {
+            vint div_res = div_big_numbers(n, del, false).first.vect_num;
+            goto A3;
+        }
+    A3:
+        y.vect_num = mul_big_numbers(z, y, false).vect_num;
+        y.vect_num = div_big_numbers(y, md, false).second.vect_num;
+        goto A4;
+    A4:
+        if (n.vect_num.size() == 1 && n.vect_num.back() == 0)
+            goto RES;
+        goto A5;
+    A5:
+        z.vect_num = mul_big_numbers(z, z, false).vect_num;
+        z.vect_num = div_big_numbers(z, md, false).second.vect_num;
+        goto A2;
+    RES:
+        auto gmp_start = high_resolution_clock::now();
 
+        mpz_powm(res.mpz_num, z.mpz_num, n.mpz_num, md.mpz_num);
+
+        auto gmp_end = high_resolution_clock::now();
+
+        auto mine_end = high_resolution_clock::now();
+
+        auto mine_duration = duration_cast<microseconds>(mine_end - mine_start);
+
+        auto gmp_duration = duration_cast<microseconds>(gmp_end - gmp_start);
+
+        printf("\nResult of ^(mod md) is: \n");
+        res = restore_big_number(res);
+        show_big_number(res, 3, m);
+
+        cout << "\nTime taken by my function: "
+             << mine_duration.count() << " microseconds" << endl;
+
+        cout << "\nTime taken by GMP function: "
+             << gmp_duration.count() << " microseconds" << endl;
+
+        return res;
+    }
+    else
+    {
+
+        if (md.vect_num.back() == 0 && md.vect_num.size() == 1 || 1)
+            goto REZ;
+    B1:
+        y.b = z.b;
+        mpz_init_set_si(y.mpz_num, 1);
+        restore_big_number(n);
+        goto B2;
+    B2:
+        del.vect_num.push_back(2);
+        if (n.vect_num.back() % 2 == 0)
+        {
+            vint div_res = div_big_numbers(n, del, false).first.vect_num;
+            goto B5;
+        }
+        else
+        {
+            vint div_res = div_big_numbers(n, del, false).first.vect_num;
+            goto B3;
+        }
+    B3:
+        y.vect_num = mul_big_numbers(z, y, false).vect_num;
+        y.vect_num = div_big_numbers(y, md, false).second.vect_num;
+        goto B4;
+    B4:
+        if (n.vect_num.size() == 1 && n.vect_num.back() == 0)
+            ;
+        goto REZ;
+    B5:
+        z.vect_num = mul_big_numbers(z, z, false).vect_num;
+        z.vect_num = div_big_numbers(z, md, false).second.vect_num;
+        goto B2;
+    REZ:
+
+        mpz_powm(res.mpz_num, z.mpz_num, n.mpz_num, md.mpz_num);
+
+        res = restore_big_number(res);
+
+        return res;
     }
 }
 
 // g++ all_1.cpp -lgmp -o test
 int main()
 {
+    printf("\n[GET A]");
     bignum a(form_big_number());
+    printf("\n[GET B]");
     bignum b(form_big_number());
 
     // bignum sum1(sum_big_numbers(a, b, true));
@@ -597,11 +695,28 @@ int main()
 
     // show_big_number(mul2, 3);
 
-    pair<bignum, bignum> div1(div_big_numbers(a, b, true));
-    pair<bignum, bignum> div2(div_big_numbers(a, b, false));
+    // pair<bignum, bignum> div1(div_big_numbers(a, b, true));
+    // pair<bignum, bignum> div2(div_big_numbers(a, b, false));
 
-    show_big_number(div2.first, 3);
-    show_big_number(div2.second, 3);
+    // show_big_number(div2.first, 3);
+    // show_big_number(div2.second, 3);
+
+    printf("\n[GET MODULE]");
+    bignum m(form_big_number());
+
+    if (atoi(m.str_num.c_str()) == 0){
+        printf("\n[ERROR] Module can't be Zero!");
+        return -1;
+    }
+
+    if (atoi(a.str_num.c_str()) == 0 && atoi(a.str_num.c_str()) == 0){
+        printf("\nResult of ^(mod md) is: \n");
+         printf("1\t(b: %d)\n", m.b);
+        return 0;
+    }
+
+    bignum pow1(pow_big_numbers(a, b, m, true));
+    // show_big_number(pow1, 3);
 
     return 0;
 }
