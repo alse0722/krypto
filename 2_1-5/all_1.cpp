@@ -567,8 +567,7 @@ bignum pow_big_numbers(bignum z, bignum n, bignum md, bool opt)
     // md 0
     // n 0
     // 0 0
-    if (atoi(md.str_num.c_str()) == 0)
-
+    printf("\nPOW\n");
     if (opt)
     {
         auto mine_start = high_resolution_clock::now();
@@ -709,9 +708,15 @@ int main()
         return -1;
     }
 
-    if (atoi(a.str_num.c_str()) == 0 && atoi(a.str_num.c_str()) == 0){
+    if (atoi(a.str_num.c_str()) == 0 && atoi(b.str_num.c_str()) == 0 &&  atoi(m.str_num.c_str()) == 1){
         printf("\nResult of ^(mod md) is: \n");
-         printf("1\t(b: %d)\n", m.b);
+         printf("0\t(b: %d)\n", 1);
+        return 0;
+    }
+
+    if (atoi(a.str_num.c_str()) == 0 && atoi(b.str_num.c_str()) == 0){
+        printf("\nResult of ^(mod md) is: \n");
+         printf("1\t(b: %s)\n", m.str_num.c_str());
         return 0;
     }
 
