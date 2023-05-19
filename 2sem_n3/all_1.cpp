@@ -9,12 +9,28 @@
 #include <ctime>
 #include <iomanip>
 #include <random>
+#include <fstream>
+#include <unistd.h>
+#include <filesystem>
+#include <sstream>
+#include <limits.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <sys/stat.h>
 
 using namespace std;
 using namespace std::chrono;
 
 typedef vector<int> vint;
 
+struct basic_info
+{
+    string p;
+    string g;
+    string x;
+    string y;
+    int code;
+};
 struct bignum
 {
     string str_num;
@@ -22,18 +38,100 @@ struct bignum
     vint vect_num;
     int b;
 };
-
-struct lang{
-    string str;
+struct dict
+{
+    string letter;
     string code;
 };
+struct KEYS
+{
+    string Y;
+    string G;
+    string P;
+    friend istream &operator>>(istream &is, KEYS &info)
+    {
+        getline(is, info.Y);
+        getline(is, info.G);
+        getline(is, info.P);
+        return is;
+    }
+};
 
-typedef vector<lang> dict;
+vector<dict> handbook = {};
+vector<string> alf0 = {"А", "Б", "В", "Г", "Д", "Е", "Ё", "Ж", "З", "И", "Й", "К", "Л", "М", "Н", "О", "П", "Р", "С", "Т", "У", "Ф", "Х", "Ц", "Ч", "Ш", "Щ", "Ъ", "Ы", "Ь", "Э", "Ю", "Я"};
+vector<string> alf = {"а", "б", "в", "г", "д", "е", "ё", "ж", "з", "и", "й", "к", "л", "м", "н", "о", "п", "р", "с", "т", "у", "ф", "х", "ц", "ч", "ш", "щ", "ъ", "ы", "ь", "э", "ю", "я",
+                      "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ",", ".", " ", "!", "?", "\n"};
+string homedir("/home/alse0722/Desktop/krypto/2sem_n3/data/");
+string keydir(""), decdir(""), encdir("");
+basic_info all_info;
 
-string coding_symbols = "0123456789 !\"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~" \
-                "абвгдеёжзийклмнопрстуфхцчшщъыьэюя" \
-                "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ" \
-                "\n";
+bool existsFile(string file_path)
+{
+    ifstream input_file(file_path.c_str(), ios::binary);
+
+    if (!input_file)
+    {
+        // printf("\n[ERROR] Failed to open file %s\n", file_path.c_str());
+        return false;
+    }
+    else
+    {
+        input_file.close();
+        // printf("\n[SUCCESS] File %s is OK\n", file_path.c_str());
+        return true;
+    }
+}
+
+vector<KEYS> getInfoFile(string info_path)
+{
+    auto file = ifstream(info_path);
+    vector<KEYS> v;
+
+    for (KEYS info; file >> info;)
+
+        v.push_back(info);
+
+    file.close();
+    return v;
+}
+
+void writeInfoFile(string info_path, vector<KEYS> info)
+{
+    if (existsFile(info_path))
+    {
+        printf("\n<system> Checking keys file: %s", info_path.c_str());
+        remove(info_path.c_str());
+    }
+    else
+        printf("\n<system> Creating keys file: %s", info_path.c_str());
+
+    ofstream out(info_path);
+
+    for (auto i : info)
+    {
+        out << i.Y << "\n";
+        out << i.G << "\n";
+        out << i.P << "\n";
+    }
+
+    printf("\n<system> Updated keys file: %s\n", info_path.c_str());
+
+    out.close();
+}
+
+string getFileContent(string file_path)
+{
+    string data;
+    ifstream input_file(file_path.c_str(), ios::binary);
+    std::ostringstream ss;
+
+    ss << input_file.rdbuf();
+    data = ss.str();
+
+    input_file.close();
+
+    return data;
+}
 
 int validated_input()
 {
@@ -129,7 +227,7 @@ void show_big_number(bignum n, int opt, int md = 0)
     if (opt == 3)
     {
         mpz_out_str(stdout, n.b, n.mpz_num);
-        //printf("\t(b: %d)\n", md == 0 ? n.b : md);
+        // printf("\t(b: %d)\n", md == 0 ? n.b : md);
     }
 }
 
@@ -708,9 +806,9 @@ bignum randgen_big_number()
     // mpz_out_str(stdout, 10, tmp.mpz_num);
     // printf(" (^10)\n");
 
-    //printf("%s (^2) : ", bit_str.c_str());
-    //mpz_out_str(stdout, 10, tmp.mpz_num);
-    //printf(" (^10)");
+    // printf("%s (^2) : ", bit_str.c_str());
+    // mpz_out_str(stdout, 10, tmp.mpz_num);
+    // printf(" (^10)");
 
     rez = restore_big_number(rez);
     return rez;
@@ -751,7 +849,7 @@ bool is_prime(bignum n, bool opt)
 
     if (mpz_get_si(n.mpz_num) <= 1)
     {
-        printf("\n[ERROR] Invalid value (current number <= 1)\n");
+        printf("\n<status> Invalid value (current number <= 1)\n");
         return false;
     }
 
@@ -840,7 +938,7 @@ void dss()
 
     while (!is_prime(q, false))
     {
-        printf("\n[ERROR] Current Q is not prime!\n");
+        printf("\n<status> Current Q is not prime!\n");
         printf("\nEnter prime Q : ");
         q = form_big_number();
     }
@@ -862,12 +960,12 @@ void dss()
 
     while (true)
     {
-        //printf("\nGenerate bit string S: ");
+        // printf("\nGenerate bit string S: ");
         bignum s(randgen_big_number());
 
         p = sum_big_numbers(mul_big_numbers(q, s, false), one, false);
-        //printf("\nCalculate P = Q * S + 1 = ");
-        //mpz_out_str(stdout, 10, p.mpz_num);
+        // printf("\nCalculate P = Q * S + 1 = ");
+        // mpz_out_str(stdout, 10, p.mpz_num);
 
         if (is_prime(p, false))
         {
@@ -926,44 +1024,330 @@ void dss()
     printf("\n\t\t\t[END CHECK]\n");
 }
 
-void gamal(){
-    
-    dict symb_dict;
-    int default_code(111);
-    string full_text(""), curr_dict("");
+void set_handbook()
+{
+    int cd(111);
+    handbook.clear();
+    bool flag(false);
 
-    for(auto symb: coding_symbols){
-        printf("\npushing (%s)", symb);
-        if (!curr_dict.find(symb)){
-            lang item;
-            item.str = symb;
-            item.code = to_string(default_code);
-            symb_dict.push_back(item);
-            default_code += 1;
-        }
-        if (default_code % 10 == 0)
-            default_code += 1;
-        if ((default_code % 100) / 10 == 0)
-            default_code += 10;
+    for (auto e : alf0)
+    {
+        flag = false;
+
+        for (auto h : handbook)
+            if (h.letter == e)
+                flag = true;
+
+        dict tmp;
+        tmp.letter = e;
+        tmp.code = to_string(cd);
+        handbook.push_back(tmp);
+        cd++;
+
+        if (cd % 10 == 0)
+            cd++;
+        if ((cd % 100) / 10 == 0)
+            cd += 10;
     }
 
-    int cnt(0);
-    for (auto e: symb_dict){
-        if (cnt % 10 == 0)
-            printf("\n");
-        printf("[symb:{%s}  code:{%s}]\t", e.str.c_str(), e.code.c_str());
+    for (auto e : alf)
+    {
+        flag = false;
+
+        for (auto h : handbook)
+            if (h.letter == e)
+                flag = true;
+
+        dict tmp;
+        tmp.letter = e;
+        tmp.code = to_string(cd);
+        handbook.push_back(tmp);
+        cd++;
+
+        if (cd % 10 == 0)
+            cd++;
+        if ((cd % 100) / 10 == 0)
+            cd += 10;
+    }
+
+    all_info.code = cd;
+}
+
+void show_handbook()
+{
+    printf("\n\t\t\t[SHOW HANDBOOK START]\n");
+    int cnt(1);
+    for (auto h : handbook)
+    {
+        printf("(%s;%s)%s", h.letter.c_str(), h.code.c_str(), cnt % 15 == 0 ? " \n" : " ");
         cnt++;
     }
+    printf("\n\t\t\t[SHOW HANDBOOK END]\n");
+}
 
+string getFileExePath()
+{
+    char result[PATH_MAX];
+    ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
+    return string(result, (count > 0) ? count : 0);
+}
+
+vector<bignum> prep_factors(bignum number)
+{
+    // printf("\nn!");
+    // show_big_number(number, 3);
+    vector<bignum> unique_factors;
+
+    mpz_sub_ui(number.mpz_num, number.mpz_num, 1);
+    // printf("\npren!");
+    // show_big_number(number, 3);
+
+    bignum one, two, rem, q, r, temp, rr;
+    mpz_init(q.mpz_num);
+    mpz_init(r.mpz_num);
+    mpz_init(temp.mpz_num);
+
+    mpz_init_set_ui(two.mpz_num, 2U);
+    mpz_init_set_ui(one.mpz_num, 1U);
+    mpz_init_set_ui(rem.mpz_num, 0U);
+    mpz_init_set_ui(rr.mpz_num, 0U);
+
+    one = restore_big_number(one);
+    two = restore_big_number(two);
+    rem = restore_big_number(rem);
+    rr = restore_big_number(rr);
+
+    // printf("\none!");
+    // show_big_number(one, 3);
+    // printf("\ntwo!");
+    // show_big_number(two, 3);
+    // printf("\ntzero!");
+    // show_big_number(rem, 3);
+
+    r = div_big_numbers(number, two, false).second;
+
+    if (mpz_get_si(r.mpz_num) == 0)
+    {
+        unique_factors.push_back(two);
+        while (mpz_get_si(rem.mpz_num) == 0)
+        {
+            rem = div_big_numbers(number, two, false).second;
+            number = div_big_numbers(number, two, false).first;
+        }
+        number = sum_big_numbers(mul_big_numbers(number, two, false), rem, false);
+    }
+
+    signed long i = 3;
+    mpz_t iter;
+    mpz_init_set_ui(iter, 3U);
+
+    while (mpz_get_si(number.mpz_num) != 1)
+    {
+        mpz_init_set(temp.mpz_num, iter);
+        mpz_fdiv_r(rr.mpz_num, number.mpz_num, temp.mpz_num);
+
+        if (mpz_get_si(rr.mpz_num) == 0)
+        {
+            // printf("\ni%d", i);
+            mpz_init_set_ui(rem.mpz_num, 0U);
+            temp = restore_big_number(temp);
+            unique_factors.push_back(temp);
+            while (mpz_get_si(rem.mpz_num) == 0)
+            {
+                mpz_fdiv_r(rem.mpz_num, number.mpz_num, temp.mpz_num);
+                mpz_fdiv_q(number.mpz_num, number.mpz_num, temp.mpz_num);
+            }
+            // number = sum_big_numbers(mul_big_numbers(number, temp, false), rem, false);
+            mpz_mul(rr.mpz_num, number.mpz_num, temp.mpz_num);
+            mpz_add(number.mpz_num, rem.mpz_num, rr.mpz_num);
+        }
+        else
+        {
+            mpz_add_ui(iter, iter, 2U);
+            i += 2;
+        }
+    }
+    printf("\n<status> Factors of P-1:");
+    for (int i = 0; i < unique_factors.size(); i++)
+    {
+        printf(" ");
+        show_big_number(unique_factors[i], 3);
+    }
+    // printf("\nln %d", unique_factors.size());
+
+    return unique_factors;
+}
+
+bignum get_primroot(bignum p)
+{
+    vector<bignum> mlts(prep_factors(p));
+    bignum gbin, g, prep;
+    mpz_init(prep.mpz_num);
+
+    mpz_sub_ui(prep.mpz_num, p.mpz_num, 1U);
+finder:
+    while (true)
+    {
+        gbin = upb_randgen_big_number(p);
+        g = div_big_numbers(gbin, p, false).second;
+        g = restore_big_number(g);
+
+        if (mpz_get_si(g.mpz_num) == 1)
+            continue;
+        for (auto del : mlts)
+        {
+            if (mpz_get_si(pow_big_numbers(g, div_big_numbers(prep, del, false).first, p, false).mpz_num) == 1)
+                goto finder;
+        }
+        return g;
+    }
+}
+
+void lets_gen()
+{
+    printf("\nEnter prime P : ");
+    bignum p(form_big_number());
+
+    while (!is_prime(p, false))
+    {
+        printf("\n<status> Current P is not prime!\n");
+        printf("\nEnter prime P : ");
+        p = form_big_number();
+    }
+
+    string key_path;
+    printf("\nEnter key's file location : ");
+    cin >> key_path;
+
+    while (!existsFile(homedir + key_path))
+    {
+        printf("\nEnter key's file location : ");
+        cin >> key_path;
+    }
+
+    keydir = homedir + key_path;
+
+    bignum g, prim;
+
+    mpz_init_set(prim.mpz_num, p.mpz_num);
+    prim = restore_big_number(prim);
+
+    printf("\n<status> Checked if P is prime (Miller-Rabin): %s", is_prime(p, false) ? "yes" : "no");
+
+    g = get_primroot(prim);
+    restore_big_number(g);
+    printf("\n<status> Generated primitive of G: ");
+    show_big_number(g, 3);
+    printf("\n<status> Check properties of G (is a real primitive root): True");
+
+    bignum one, two;
+    mpz_init_set_ui(two.mpz_num, 2U);
+
+    bignum x(upb_randgen_big_number(sub_big_numbers(p, two, false)));
+    x = restore_big_number(x);
+    printf("\n<status> Generated random X (1 < x < p - 1): ");
+    show_big_number(x, 3);
+
+    bignum y(pow_big_numbers(g, x, p, false));
+    y = restore_big_number(y);
+    printf("\n<status> Calculated Y = pow(G, X) (mod P): ");
+    show_big_number(y, 3);
+
+    printf("\n<status> Open key generated (Y, G, P): (");
+    show_big_number(y, 3);
+    printf(", ");
+    show_big_number(g, 3);
+    printf(", ");
+    show_big_number(p, 3);
+    printf(")");
+
+    printf("\n<status> Secret key generated (X): (");
+    show_big_number(x, 3);
+    printf(")");
+
+    vector<KEYS> key_grab;
+    KEYS gamals;
+    gamals.G = mpz_get_str(NULL, 10, g.mpz_num);
+    gamals.Y = mpz_get_str(NULL, 10, y.mpz_num);
+    gamals.P = mpz_get_str(NULL, 10, p.mpz_num);
+
+    all_info.g = gamals.G;
+    all_info.y = gamals.Y;
+    all_info.p = gamals.P;
+    all_info.x = mpz_get_str(NULL, 10, x.mpz_num);
+
+    key_grab.push_back(gamals);
+    writeInfoFile((homedir + key_path), key_grab);
+}
+
+void lets_encrypt()
+{
+    string key_path;
+    printf("\nEnter plain text location : ");
+    cin >> key_path;
+
+    while (!existsFile(homedir + key_path))
+    {
+        printf("\nEnter plain text location : ");
+        cin >> key_path;
+    }
+
+    decdir = homedir + key_path;
+
+    printf("\n<status> Clearing restricted symbols from: %s", decdir.c_str());
+    string text = getFileContent(decdir);
+    ofstream out(homedir + "file_cleared.txt");    
+
+    for(auto t: text){
+        //printf("\n{%s}", t);
+        for (auto h: handbook)
+            if (to_string(t) == h.letter)
+                out << tolower(t);
+    }
+    
+    printf("\n<status> Cleared file location: %s", (homedir + "file_cleared.txt").c_str());
+    
+    out.close();
+}
+
+void lets_decrypt()
+{
+}
+
+int gamal()
+{
+
+    printf("\nEnter mode:\n[1] Key generation\n[2] Encryption\n[3] Decryption\n[0] Exit\nMode:");
+    int mode(validated_input());
+
+    switch (mode)
+    {
+    case 1:
+        printf("\n\t\t\t[KEY GENERATION START]\n");
+        lets_gen();
+        printf("\n\t\t\t[KEY GENERATION END]\n");
+    case 2:
+        set_handbook();
+        show_handbook();
+        printf("\n\t\t\t[ENCRYPTION START]\n");
+        lets_encrypt();
+        printf("\n\t\t\t[ENCRYPTION END]\n");
+    case 3:
+        show_handbook();
+        lets_decrypt();
+    case 0:
+        printf("\n\t\t\t[PROGRAM SHUTTING DOWN]\n");
+
+    default:
+        break;
+    }
+
+    return mode;
 }
 
 // g++ all_1.cpp -lgmp -o test
 int main()
 {
-    setlocale(0, "");
-    for(auto e: coding_symbols){
-        printf("\nsymb(%c)", e);
-    }
     gamal();
     return 0;
 }

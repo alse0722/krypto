@@ -117,7 +117,7 @@ void show_big_number(bignum n, int opt, int md = 0)
     if (opt == 3)
     {
         mpz_out_str(stdout, n.b, n.mpz_num);
-        //printf("\t(b: %d)\n", md == 0 ? n.b : md);
+        // printf("\t(b: %d)\n", md == 0 ? n.b : md);
     }
 }
 
@@ -696,9 +696,9 @@ bignum randgen_big_number()
     // mpz_out_str(stdout, 10, tmp.mpz_num);
     // printf(" (^10)\n");
 
-    //printf("%s (^2) : ", bit_str.c_str());
-    //mpz_out_str(stdout, 10, tmp.mpz_num);
-    //printf(" (^10)");
+    // printf("%s (^2) : ", bit_str.c_str());
+    // mpz_out_str(stdout, 10, tmp.mpz_num);
+    // printf(" (^10)");
 
     rez = restore_big_number(rez);
     return rez;
@@ -850,12 +850,12 @@ void dss()
 
     while (true)
     {
-        //printf("\nGenerate bit string S: ");
+        // printf("\nGenerate bit string S: ");
         bignum s(randgen_big_number());
 
         p = sum_big_numbers(mul_big_numbers(q, s, false), one, false);
-        //printf("\nCalculate P = Q * S + 1 = ");
-        //mpz_out_str(stdout, 10, p.mpz_num);
+        // printf("\nCalculate P = Q * S + 1 = ");
+        // mpz_out_str(stdout, 10, p.mpz_num);
 
         if (is_prime(p, false))
         {
