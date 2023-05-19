@@ -17,6 +17,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <sys/stat.h>
+#include <wchar.h>
 
 using namespace std;
 using namespace std::chrono;
@@ -40,7 +41,7 @@ struct bignum
 };
 struct dict
 {
-    string letter;
+    char letter;
     string code;
 };
 struct KEYS
@@ -58,9 +59,16 @@ struct KEYS
 };
 
 vector<dict> handbook = {};
-vector<string> alf0 = {"А", "Б", "В", "Г", "Д", "Е", "Ё", "Ж", "З", "И", "Й", "К", "Л", "М", "Н", "О", "П", "Р", "С", "Т", "У", "Ф", "Х", "Ц", "Ч", "Ш", "Щ", "Ъ", "Ы", "Ь", "Э", "Ю", "Я"};
-vector<string> alf = {"а", "б", "в", "г", "д", "е", "ё", "ж", "з", "и", "й", "к", "л", "м", "н", "о", "п", "р", "с", "т", "у", "ф", "х", "ц", "ч", "ш", "щ", "ъ", "ы", "ь", "э", "ю", "я",
-                      "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ",", ".", " ", "!", "?", "\n"};
+// vector<string> alf0 = {"А", "Б", "В", "Г", "Д", "Е", "Ё", "Ж", "З", "И", "Й", "К", "Л", "М", "Н", "О", "П", "Р", "С", "Т", "У", "Ф", "Х", "Ц", "Ч", "Ш", "Щ", "Ъ", "Ы", "Ь", "Э", "Ю", "Я"};
+// vector<string> alf = {"а", "б", "в", "г", "д", "е", "ё", "ж", "з", "и", "й", "к", "л", "м", "н", "о", "п", "р", "с", "т", "у", "ф", "х", "ц", "ч", "ш", "щ", "ъ", "ы", "ь", "э", "ю", "я",
+//                       "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ",", ".", " ", "!", "?", "\n"};
+//
+vector<char> alf0 = {'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', '/', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '$', '^', '*'};
+vector<char> alf = {'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm',
+                    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ',', '.', ' ', '!', '?', '\n'};
+
+// vector<char> alf2 = {'s','r','p','n','k'};
+// vector<char> alf2 = {'с','р','п','н','к'};
 string homedir("/home/alse0722/Desktop/krypto/2sem_n3/data/");
 string keydir(""), decdir(""), encdir("");
 basic_info all_info;
@@ -122,13 +130,17 @@ void writeInfoFile(string info_path, vector<KEYS> info)
 string getFileContent(string file_path)
 {
     string data;
-    ifstream input_file(file_path.c_str(), ios::binary);
-    std::ostringstream ss;
-
-    ss << input_file.rdbuf();
-    data = ss.str();
-
-    input_file.close();
+    string line;
+    ifstream myfile(file_path);
+    if (myfile.is_open())
+    {
+        while (getline(myfile, line))
+        {
+            // printf("%s", line.c_str());
+            data += line + "\n";
+        }
+        myfile.close();
+    }
 
     return data;
 }
@@ -1079,7 +1091,7 @@ void show_handbook()
     int cnt(1);
     for (auto h : handbook)
     {
-        printf("(%s;%s)%s", h.letter.c_str(), h.code.c_str(), cnt % 15 == 0 ? " \n" : " ");
+        printf("(%c;%s)%s", h.letter, h.code.c_str(), cnt % 15 == 0 ? " \n" : " ");
         cnt++;
     }
     printf("\n\t\t\t[SHOW HANDBOOK END]\n");
@@ -1295,19 +1307,58 @@ void lets_encrypt()
     decdir = homedir + key_path;
 
     printf("\n<status> Clearing restricted symbols from: %s", decdir.c_str());
-    string text = getFileContent(decdir);
-    ofstream out(homedir + "file_cleared.txt");    
+    string text = getFileContent(decdir), text_buf(text);
+    ofstream out(homedir + "file_cleared.txt");
 
-    for(auto t: text){
-        //printf("\n{%s}", t);
-        for (auto h: handbook)
-            if (to_string(t) == h.letter)
-                out << tolower(t);
+    printf("%s", text.c_str());
+    string zero = "";
+
+    printf("\n<status> Cleared message below:\n");
+    for (char t : text)
+    {
+        // cout << "\n" << int(t) << "|" << t;
+        for (auto h : handbook)
+            if (t == h.letter)
+            {
+                out << (char)tolower(t);
+                cout << (char)tolower(t);
+            }
     }
-    
+
     printf("\n<status> Cleared file location: %s", (homedir + "file_cleared.txt").c_str());
-    
     out.close();
+
+    string cd_str("");
+    for (char t : text)
+        for (auto h : handbook)
+            if (t == h.letter)
+                cd_str += h.code;
+    vector<string> segments;
+    int all_len(cd_str.length());
+    int seg_len(all_info.p.length());
+
+    printf("\n<status> Concated code-string: :\n|\t%s", cd_str.c_str());
+    
+    int cnt = 0;
+    int ii(0);
+    string seg("");
+    while (cnt <= all_len){
+        if (cnt != 0 && cnt % seg_len != 0){
+            cnt++;
+            seg += cd_str[cnt];
+        }else{
+            cnt++;
+            seg += cd_str[cnt];
+            segments.push_back(seg);
+            seg = "";
+        }
+    }
+    printf("\n<status> Segmented code-string: :\n|\t");
+    for (auto e: segments)
+        printf("%s ", e.c_str());
+
+            
+    
 }
 
 void lets_decrypt()
@@ -1348,6 +1399,7 @@ int gamal()
 // g++ all_1.cpp -lgmp -o test
 int main()
 {
+    setlocale(0, "");
     gamal();
     return 0;
 }
